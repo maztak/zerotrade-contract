@@ -56,7 +56,7 @@ contract ZeroTrade is ReentrancyGuard {
 
   function list(address _nftContract, uint256 _tokenId, address _buyer, uint256 _price) public payable nonReentrant { // TODO: Rename to escraw
     require(_price > 0, "Price must be at least 1 wei");
-    require(_nftToItem[_nftContract][_tokenId].nftContract != address(0x0), "This NFT has been listed in the past. Use reList function.");
+    require(_nftToItem[_nftContract][_tokenId].nftContract == address(0x0), "This NFT has been listed in the past. Use reList function.");
     
     IERC721(_nftContract).transferFrom(msg.sender, address(this), _tokenId);
 
@@ -145,7 +145,7 @@ contract ZeroTrade is ReentrancyGuard {
     return items;
   }
 
-  function getMyListedNfts() public view returns (Item[] memory) {
+  function getMyListedItems() public view returns (Item[] memory) {
     uint256 itemCount = _itemCount.current();
     uint256 listedItemCount = _listedItemCount.current();
 
