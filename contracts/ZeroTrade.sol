@@ -136,8 +136,9 @@ contract ZeroTrade is ReentrancyGuard {
       tokenIds = _contractToTokenIds[nftContract];
    
       for (uint j = 0; j < contractTokenCount; j++) {
-        if (_nftToItem[nftContract][j].listed) {
-          items[itemsIndex] = _nftToItem[nftContract][j];
+        uint256 tokenId = tokenIds[j];
+        if (_nftToItem[nftContract][tokenId].listed) {
+          items[itemsIndex] = _nftToItem[nftContract][tokenId];
           itemsIndex++;
         }
       }
@@ -158,8 +159,9 @@ contract ZeroTrade is ReentrancyGuard {
       tokenIds = _contractToTokenIds[nftContract];
    
       for (uint j = 0; j < contractTokenCount; j++) {
-        if (_nftToItem[nftContract][j].listed && _nftToItem[nftContract][j].seller == msg.sender) {
-          items[itemsIndex] = _nftToItem[nftContract][j];
+        uint256 tokenId = tokenIds[j];
+        if (_nftToItem[nftContract][tokenId].listed && _nftToItem[nftContract][tokenId].seller == msg.sender) {
+          items[itemsIndex] = _nftToItem[nftContract][tokenId];
           itemsIndex++;
         }
       }
