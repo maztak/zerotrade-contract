@@ -4,8 +4,9 @@ pragma solidity ^0.8.13;
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
-contract ZeroTrade is ReentrancyGuard {
+contract ZeroTrade is ReentrancyGuard, ERC721Holder {
   using Counters for Counters.Counter;
   Counters.Counter public _itemCount; // TODO: change to private if neeeded
   Counters.Counter public _listedItemCount; // TODO: change to private if needed
