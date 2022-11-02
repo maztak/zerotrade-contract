@@ -19,8 +19,8 @@ contract ZeroTrade is ReentrancyGuard {
   struct Item {
     address nftContract;
     uint256 tokenId;
-    address payable seller;
-    address payable owner;
+    address seller;
+    address owner;
     address specifiedBuyer;
     uint256 price;
     bool listed;
@@ -85,39 +85,59 @@ contract ZeroTrade is ReentrancyGuard {
 
     IERC721(_nftContract).transferFrom(msg.sender, address(this), _tokenId);
 
-    Item storage item = _nftToItem[_nftContract][_tokenId];
-    item.seller = payable(msg.sender);
-    item.owner = payable(address(this));
-    item.listed = true;
-    item.price = _price;
+    _nftToItem[_nftContract][_tokenId] = Item(
+      _nftContract,
+      _tokenId,
+      payable(msg.sender),
+      payable(address(this)),
+      _buyer,
+      _price,
+      true
+    );
 
     _listedItemCount.increment();
     emit NFTListed(_nftContract, _tokenId, msg.sender, address(this), _buyer, _price);
   }
 
   function cancelListing(address _nftContract, uint256 _tokenId) public payable nonReentrant { // TODO: Rename to withdraw
-    Item storage item = _nftToItem[_nftContract][_tokenId];
+    Item memory item = _nftToItem[_nftContract][_tokenId];
     require(msg.sender == item.seller, "You are not the seller");
 
     address payable canceler = payable(msg.sender);
-    IERC721(_nftContract).transferFrom(address(this), canceler, item.tokenId);
-    item.owner = canceler;
-    item.listed = false;
+    IERC721(_nftContract).safeTransferFrom(address(this), canceler, _tokenId);
+
+    _nftToItem[_nftContract][_tokenId] = Item(
+      _nftContract,
+      _tokenId,
+      address(0),
+      canceler,
+      address(0),
+      0,
+      false
+    );
 
     _listedItemCount.decrement();
     emit NFTCancelListing(_nftContract, item.tokenId, msg.sender, item.owner);
   }
 
   function buy(address _nftContract, uint256 _tokenId) public payable nonReentrant {
-    Item storage item = _nftToItem[_nftContract][_tokenId];
+    Item memory item = _nftToItem[_nftContract][_tokenId];
     require(msg.value >= item.price, "Not enough ether to cover asking price");
     require(msg.sender == item.specifiedBuyer, "You are not specified buyer");
 
     address payable buyer = payable(msg.sender);
     payable(item.seller).transfer(msg.value);
-    IERC721(_nftContract).transferFrom(address(this), buyer, item.tokenId);
-    item.owner = buyer;
-    item.listed = false;
+    IERC721(_nftContract).safeTransferFrom(address(this), buyer, _tokenId);
+
+    _nftToItem[_nftContract][_tokenId] = Item(
+      _nftContract,
+      _tokenId,
+      address(0),
+      buyer,
+      address(0),
+      0,
+      false
+    );
 
     _listedItemCount.decrement();
     emit NFTSold(_nftContract, item.tokenId, item.seller, buyer, msg.value);
