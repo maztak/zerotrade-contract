@@ -58,7 +58,7 @@ contract ZeroTrade is ReentrancyGuard {
     require(_price > 0, "Price must be at least 1 wei");
     require(_nftToItem[_nftContract][_tokenId].nftContract == address(0x0), "This NFT has been listed in the past. Use reList function.");
     
-    IERC721(_nftContract).transferFrom(msg.sender, address(this), _tokenId);
+    IERC721(_nftContract).safeTransferFrom(msg.sender, address(this), _tokenId);
 
     _nftToItem[_nftContract][_tokenId] = Item(
       _nftContract,
@@ -83,7 +83,7 @@ contract ZeroTrade is ReentrancyGuard {
     require(_price > 0, "Price must be at least 1 wei");
     require(_nftToItem[_nftContract][_tokenId].nftContract == address(0x0), "This NFT is listed first time. Use list function.");
 
-    IERC721(_nftContract).transferFrom(msg.sender, address(this), _tokenId);
+    IERC721(_nftContract).safeTransferFrom(msg.sender, address(this), _tokenId);
 
     _nftToItem[_nftContract][_tokenId] = Item(
       _nftContract,
